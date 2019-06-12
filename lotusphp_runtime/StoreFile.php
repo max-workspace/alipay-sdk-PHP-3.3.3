@@ -23,7 +23,7 @@ class LtStoreFile implements LtStore
 	 * 当key存在时:
 	 * 如果没有过期, 不更新值, 返回 false
 	 * 如果已经过期,   更新值, 返回 true
-	 *
+	 * add操作实际上相当于创建一个唯一和key对应的文件，来存储value
 	 * @return bool
 	 */
 	public function add($key, $value)
@@ -37,6 +37,7 @@ class LtStoreFile implements LtStore
 				trigger_error("Can not create $cachePath");
 			}
 		}
+		// 如果文件存在，就说明对应的key已经设置的有值，add操作就不太合适了，所以返回false
 		if (is_file($file))
 		{
 			return false;
@@ -51,7 +52,7 @@ class LtStoreFile implements LtStore
 
 	/**
 	 * 删除不存在的key返回false
-	 *
+	 * del实际上相当于删除和key唯一对应的文件
 	 * @return bool
 	 */
 	public function del($key)
@@ -98,6 +99,7 @@ class LtStoreFile implements LtStore
 	public function update($key, $value)
 	{
 		$file = $this->getFilePath($key);
+		// 如果key对应的文件不存在，应该走add接口，所以在此返回false
 		if (!is_file($file))
 		{
 			return false;
@@ -113,6 +115,14 @@ class LtStoreFile implements LtStore
 		}
 	}
 
+    /**
+     * 根据传递的参数key，生成对应的存储文件完整路径
+     * 中间使用了MD5获取传参key的散列值，并使用这个散列值的前几位形成目录层级结构
+     * 通过将不同的key映射到不同目录位置，减少目录的大小，保证通过key获取文件的快速性
+     * 类似于hash table
+     * @param $key
+     * @return string
+     */
 	public function getFilePath($key)
 	{
 		$token = md5($key);

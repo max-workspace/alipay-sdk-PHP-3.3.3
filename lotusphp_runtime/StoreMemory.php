@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * Class LtStoreMemory
+ * 存在内存中，实际是通过定义出一个php数组，根据key和value创建关联数组
+ */
 class LtStoreMemory implements LtStore
 {
 	protected $stack;
