@@ -37,7 +37,7 @@ class LtStoreFile implements LtStore
 				trigger_error("Can not create $cachePath");
 			}
 		}
-		// 如果文件存在，就说明对应的key已经设置的有值，add操作就不太合适了，所以返回false
+		// 如果文件存在，就说明对应的key已经设置的有值，应该使用update接口，所以返回false
 		if (is_file($file))
 		{
 			return false;
