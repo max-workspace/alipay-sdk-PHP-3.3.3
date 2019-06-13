@@ -11,6 +11,7 @@ class LtRouter
 
 	public function __construct()
 	{
+	    // 在构造函数内会以单例模式的形式设置LtConfig
 		if (! $this->configHandle instanceof LtConfig)
 		{
 			if (class_exists("LtObjectUtil"))
@@ -26,6 +27,7 @@ class LtRouter
 
 	public function init()
 	{
+	    // 初始化会先从配置组件中加载路由表，如果配置组件中没有，则直接设置
 		$this->routingTable = $this->configHandle->get("router.routing_table");
 		if (empty($this->routingTable))
 		{
@@ -53,13 +55,18 @@ class LtRouter
 			if (isset($_SERVER['PATH_INFO']) && !empty($_SERVER['PATH_INFO']))
 			{ 
 				// 忽略后缀
+                // 此处通过分解请求域名后面url地址来生成$url变量，并由后面的方法来生成需要的模块、动作、以及参数
 				$url = rtrim($_SERVER['PATH_INFO'], "$postfix");
 				$url = explode($delimiter, trim($url, "/"));
 			}
 			else if (isset($_SERVER['REQUEST_URI']))
 			{
+			    // 如果是通过REQUEST_URI方式，则会监测配置组件里的protocol协定
 				if ('REWRITE' == $protocol)
 				{
+				    // 判断REQUEST_URI和SCRIPT_NAME是否完全相等
+                    // 如果完全相等生成的url变量就为空
+                    // 如果不相等，就采用分解文件路径的方式生成url变量
 					if (0 == strcmp($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']))
 					{
 						$url = array();
@@ -101,6 +108,7 @@ class LtRouter
 		else
 		{ 
 			// CLI
+            // 命令行模式下获取使用的模块、动作以及传参
 			$i = 0;
 			while (isset($_SERVER['argv'][$i]) && isset($_SERVER['argv'][$i + 1]))
 			{

@@ -20,6 +20,7 @@ class LtConfig
 	public function get($key)
 	{
 		$storedConfig = $this->storeHandle->get($key);
+		// 如果存储的配置是表达式配置，则要进行处理
 		if ($storedConfig instanceof LtConfigExpression)
 		{
 			$str = $storedConfig->__toString();
@@ -46,12 +47,14 @@ class LtConfig
 	 */
 	public function loadConfigFile($configFile)
 	{
+	    // store中没有任何配置时才执行
 		if (0 == $this->storeHandle->get(".config_total"))
 		{
 			if (null === $configFile || !is_file($configFile))
 			{
 				trigger_error("no config file specified or invalid config file");
 			}
+			// 在此处将$configFile文件的执行结果返回给类变量的conf
 			$this->conf = include($configFile);
 			if (!is_array($this->conf))
 			{
@@ -68,6 +71,10 @@ class LtConfig
 		}
 	}
 
+    /**
+     * 循环配置数组，将配置存入store然后，更新store里的配置计数
+     * @param $configArray
+     */
 	public function addConfig($configArray)
 	{
 		foreach($configArray as $key => $value)
