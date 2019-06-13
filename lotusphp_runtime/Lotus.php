@@ -61,6 +61,8 @@ class Lotus
 				trigger_error("invalid [default store dir]: " . $this->defaultStoreDir);
 			}
 		}
+		// 非开发者模式下会加载数据缓存模块
+        // coreCacheHandle使用的是LtStoreFile，相比LtStoreMemory，磁盘上的文件比内存数组在持久化上更好
 		if (!$this->devMode)
 		{
 			/**
@@ -115,6 +117,8 @@ class Lotus
 		{
 			$autoloader->storeHandle = $this->coreCacheHandle;
 		}
+		// 调用自动加载类的初始化方法前，会先设置自动加载类autoloadPath以及storeHandle（根据是否是开发者模式）
+        // 初始化前会设置自动加载类的autoloadPath为和AopSdk.php同级的aop目录和lotusphp_runtime目录（注意此处是目录而非是文件）
 		$autoloader->init();
 	}
 
